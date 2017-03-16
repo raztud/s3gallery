@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'browser'
 ]
 
 MIDDLEWARE = [
@@ -50,6 +51,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 's3gallery.urls'
+
+TEMPLATE_DEBUG = DEBUG # django is stupid...dont put it in TEMPLATES
 
 TEMPLATES = [
     {
@@ -118,3 +121,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+from .amazon import ACCESS_KEY, SECRET_KEY, REGION, BUCKET, ROOT, ROOT_FULL

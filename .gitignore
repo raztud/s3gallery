@@ -1,1 +1,2 @@
-.idea/
+*.pyc
+s3gallery/amazon.py

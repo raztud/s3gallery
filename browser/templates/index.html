@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block h3title %} - {{ data.current_element }} {%endblock %}
+{% block content %}
+
+{% for element in data.folders %}
+<a href="/?element={{ element.full_path }}">{{ element.name }}</a> <br />
+{% endfor %}
+
+{% for element in data.files %}
+<a href="/show-file/?element={{ element.full_path }}">{{ element.name }}</a> <br />
+{% endfor %}
+
+{% endblock %}

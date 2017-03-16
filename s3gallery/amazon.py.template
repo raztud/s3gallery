@@ -1,0 +1,6 @@
+ACCESS_KEY = ""
+SECRET_KEY = ""
+REGION = "eu-west-1"
+BUCKET = ""
+ROOT = "the/path/in/s3/where/to/start/"
+ROOT_FULL = ROOT + ""
