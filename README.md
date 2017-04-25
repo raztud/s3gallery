@@ -11,5 +11,5 @@ Move s3gallery/amazon.py.template in s3gallery/amazon.py and fill the required c
 
 ```
 pip install -r requirements.txt
-pyton manage.py runserver
+python manage.py runserver
 ```
