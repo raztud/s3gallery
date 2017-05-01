@@ -1,9 +1,12 @@
 import boto3
+import logging
 from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseNotFound
 
 from botocore.exceptions import ClientError
+
+logger = logging.getLogger(__name__)
 
 
 def get_folders(response, prefix):
@@ -32,6 +35,23 @@ def get_files(response, prefix):
     return elements
 
 
+def get_from_file(fileid):
+    temp_folder = settings.TMP_FOLDER
+    filename = '{}/cache_{}'.format(temp_folder, fileid)
+    return open(filename, "rb").read()
+
+
+def write_file(body, fileid):
+    temp_folder = settings.TMP_FOLDER
+    filename = '{}/cache_{}'.format(temp_folder, fileid)
+    try:
+        f = open(filename, 'wb')
+        f.write(body)
+        f.close()
+    except:
+        pass
+
+
 def show_file(request):
     if not request.GET.get('element', None):
         return HttpResponseNotFound()
@@ -45,14 +65,23 @@ def show_file(request):
 
     filename = settings.ROOT_FULL + request.GET.get('element')
     try:
-        client.head_object(Bucket=settings.BUCKET, Key=filename)
+        head_response = client.head_object(Bucket=settings.BUCKET, Key=filename)
     except ClientError:
         return HttpResponseNotFound("File not found")
+
+    fileid = head_response['ETag'].strip('"')
+    try:
+        body = get_from_file(fileid)
+        return HttpResponse(body, content_type=head_response['ContentType'])
+    except:
+        pass
 
     response = client.get_object(Bucket=settings.BUCKET, Key=filename,)
 
     try:
-        return HttpResponse(response['Body'].read(), content_type=response['ContentType'])
+        body = response['Body'].read()
+        write_file(body, fileid)
+        return HttpResponse(body, content_type=response['ContentType'])
     except:
         # red = Image.new('RGBA', (1, 1), (255, 0, 0, 0))
         # response = HttpResponse(content_type="image/jpeg")
