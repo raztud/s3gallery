@@ -1,12 +1,9 @@
 import boto3
-import logging
 from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseNotFound
 
 from botocore.exceptions import ClientError
-
-logger = logging.getLogger(__name__)
 
 
 def get_folders(response, prefix):
