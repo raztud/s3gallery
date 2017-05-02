@@ -9,6 +9,8 @@ Requirements: python3.
 
 Move s3gallery/amazon.py.template in s3gallery/amazon.py and fill the required constants.
 
+Set the necessary rights on `temporary` folder.
+
 ```
 pip install -r requirements.txt
 python manage.py runserver
