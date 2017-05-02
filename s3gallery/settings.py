@@ -25,7 +25,7 @@ SECRET_KEY = '7s9ki=1hun37691kwn+47l9=rn+5ibt2bly+3ywrdujk@p^7c)'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['s3gallery.ursultrubadur.org', '127.0.0.1']
 
 
 # Application definition
