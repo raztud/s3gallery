@@ -138,7 +138,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '../logs/s3browser.log',
+            'filename': 'logs/s3browser.log',
             'formatter': 'simple',
         },
     },
