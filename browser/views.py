@@ -1,24 +1,67 @@
+import logging
 import boto3
 from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseNotFound
 
+import csv
 from botocore.exceptions import ClientError
+
+logger = logging.getLogger('gallery')
 
 
 def get_folders(response, prefix):
     content = response.get('CommonPrefixes', [])
 
+    body = get_index_content(response, prefix)
+    meta = parse_index(body)
+
     elements = []
     for element in content:
+        meta_name = element['Prefix'].replace(prefix, '')[:-1]
+        name = meta.get(meta_name) or element['Prefix'].replace(prefix, '')
         elements.append(
             {
                 'full_path': element['Prefix'].replace(settings.ROOT_FULL, ''),
-                'name': element['Prefix'].replace(prefix, '')
+                'name': name
             }
         )
 
     return elements
+
+
+def parse_index(text):
+    meta = {}
+    reader = csv.reader(text.split('\n'), delimiter=',', quotechar='"')
+    for row in reader:
+        if len(row) >= 2:
+            meta[row[0]] = row[1]
+
+    return meta
+
+def get_index_content(response, prefix):
+    client = boto3.client(
+        's3',
+        aws_access_key_id=settings.ACCESS_KEY,
+        aws_secret_access_key=settings.SECRET_KEY,
+        region_name=settings.REGION,
+    )
+
+    filename = prefix + 'index.txt'
+    try:
+        client.head_object(Bucket=settings.BUCKET, Key=filename)
+    except ClientError:
+        logger.info("{} not found".format(filename))
+        return ''
+
+    try:
+        response = client.get_object(Bucket=settings.BUCKET, Key=filename, )
+        body = response['Body'].read()
+        return body.decode("utf-8")
+    except:
+        logger.info("index.txt body could not be read")
+        return ''
+
 
 
 def get_files(response, prefix):
@@ -26,6 +69,8 @@ def get_files(response, prefix):
     elements = []
     for element in content:
         name = element['Key'].replace(prefix, '')
+        if name == 'index.txt':
+            continue
         full_path = element['Key'].replace(settings.ROOT_FULL, '')
         elements.append({'full_path': full_path, 'name': name})
 
@@ -109,7 +154,10 @@ def index(request):
 
     current_element = request.GET.get('element', 'Photo Gallery ').replace('_', ' ')[:-1]
 
+    elements = current_element.split('/')
+
     elements = {
+        'elements': elements,
         'current_element': current_element,
         'folders': folders,
         'files': files

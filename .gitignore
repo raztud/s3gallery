@@ -3,3 +3,4 @@ __pycache__
 s3gallery/__pycache__
 s3gallery/amazon.py
 temporary/cache_*
+logs/
