@@ -1,0 +1,33 @@
+#!/bin/bash
+
+NAME="s3gallery"                                             # Django Project Name
+DJANGODIR=/home/ursultrubadur/s3gallery  # Django Project Directory
+SOCKFILE=/home/ursultrubadur/s3gallery/gunicorn.sock     # Gunicorn Sock File
+USER=ursultrubadur                                # Django Project Running under user vagrant
+GROUP=ursultrubadur                                                # Django Project Running under group vagrant
+NUM_WORKERS=3
+DJANGO_SETTINGS_MODULE=${NAME}.settings                     # change 'myproject' with your project name
+DJANGO_WSGI_MODULE=${NAME}.wsgi                             # change 'myproject' with your project name
+
+echo "Starting $NAME as `whoami`"
+
+# Activate the virtual environment
+cd $DJANGODIR
+source ${DJANGODIR}/env/bin/activate
+export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+export PYTHONPATH=$DJANGODIR:$PYTHONPATH
+
+# Create the run directory if it doesn't exist
+RUNDIR=$(dirname $SOCKFILE)
+test -d $RUNDIR || mkdir -p $RUNDIR
+
+# Start your Django Unicorn
+# Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)
+exec ${DJANGODIR}/env/bin/gunicorn ${DJANGO_WSGI_MODULE}:application \
+--name $NAME \
+--workers $NUM_WORKERS \
+--user=$USER --group=$GROUP \
+--bind=unix:$SOCKFILE \
+--log-level=debug \
+--log-file=-
+
