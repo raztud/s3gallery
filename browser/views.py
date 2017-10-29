@@ -62,8 +62,6 @@ def get_index_content(response, prefix):
         logger.info("index.txt body could not be read")
         return ''
 
-
-
 def get_files(response, prefix):
     content = response.get('Contents', [])
     elements = []
