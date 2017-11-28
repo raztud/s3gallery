@@ -77,7 +77,8 @@ class S3Browser(object):
             head_response = self.client.head_object(Bucket=settings.BUCKET,
                                                     Key=filename)
         except ClientError:
-            return S3BrowserExceptionNotFound
+            logger.error('File not found: {}'.format(filename))
+            raise S3BrowserExceptionNotFound
 
         fileid = head_response['ETag'].strip('"')
         try:

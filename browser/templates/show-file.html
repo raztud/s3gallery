@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block h3title %}{{ data.current_element }} {%endblock %}
+{% block content %}
+
+    <div>
+<img src="data:image/png;base64, {{ imgbody }}" alt="No image" />
+
+    </div>
+      <hr>
+
+      <footer>
+        <p>&copy; UrsulTrubadur.org {{year}}</p>
+      </footer>
+
+{% endblock %}
