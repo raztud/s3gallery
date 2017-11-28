@@ -1,8 +1,7 @@
 from django.conf.urls import url
-
-from . import views
+from browser.views import IndexView, ShowFileView
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
-    url(r'^show-file/$', views.show_file, name='show-file'),
+    url(r'^$', IndexView.as_view(), name='index'),
+    url(r'^show-file/$', ShowFileView.as_view(), name='show-file'),
 ]
