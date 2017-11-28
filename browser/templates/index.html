@@ -7,7 +7,7 @@
 {% endfor %}
 
 {% for element in data.files %}
-<a href="/show-file/?element={{ element.full_path }}">{{ element.name }}</a> <br />
+<a href="/file/{{ element.full_path }}/">{{ element.name }}</a> <br />
 {% endfor %}
 
 {% endblock %}
