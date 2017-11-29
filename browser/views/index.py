@@ -19,15 +19,13 @@ class IndexView(View):
     template_name = 'index.html'
 
     def get(self, request, element=''):
-        logger.error(element)
         prefix = settings.ROOT_FULL + element
 
         s3browser = S3Browser()
         file_list = s3browser.get_list(prefix=prefix)
 
-        current_element = request.GET.get(
-            'element',
-            'Photo Gallery ').replace('_', ' ')[:-1]
+        current_element = element or 'Photo Gallery '
+        current_element = current_element.replace('_', ' ')[:-1]
 
         elements = current_element.split('/')
 
