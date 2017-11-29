@@ -1,10 +1,12 @@
 import logging
 import base64
 import time
-from django.views import View
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseNotFound
 from django.conf import settings
+from django.http import HttpResponse, HttpResponseNotFound, \
+    HttpResponsePermanentRedirect
+from django.shortcuts import render
+from django.urls import reverse
+from django.views import View
 from browser.s3browser import S3Browser, S3BrowserExceptionNotFound, \
     S3BrowserReadingError
 
@@ -31,3 +33,13 @@ class ShowFileView(View):
             return HttpResponseNotFound()
         except S3BrowserReadingError:
             return HttpResponse('Please try again later.')
+
+
+class ShowFileRedirectView(View):
+
+    def get(self, request):
+        if not request.GET.get('element', None):
+            return HttpResponsePermanentRedirect(
+                reverse('file', args=(element,))
+            )
+
