@@ -12,8 +12,7 @@ logger = logging.getLogger('gallery')
 
 class IndexViewRedirect(View):
     def get(self, request):
-        element = settings.ROOT_FULL + request.GET.get('element', '')
-        return HttpResponsePermanentRedirect(reverse('index', args=(element,)))
+        return HttpResponsePermanentRedirect(reverse('index', args=(request.GET.get('element', ''),)))
 
 
 class IndexView(View):

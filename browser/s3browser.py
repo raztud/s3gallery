@@ -112,7 +112,7 @@ class S3Browser(object):
             body = response['Body'].read()
             return body.decode('utf-8')
         except:
-            logger.info('index.txt body could not be read')
+            logger.debug('index.txt could not be read')
             return ''
 
     @staticmethod
