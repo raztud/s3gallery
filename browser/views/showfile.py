@@ -38,8 +38,6 @@ class ShowFileView(View):
 class ShowFileRedirectView(View):
 
     def get(self, request):
-        if not request.GET.get('element', None):
-            return HttpResponsePermanentRedirect(
-                reverse('file', args=(element,))
-            )
+        element = request.GET.get('element', '')
+        return HttpResponsePermanentRedirect(reverse('file', args=(element,)))
 

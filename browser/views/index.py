@@ -1,19 +1,27 @@
 import logging
 
 from django.views import View
-from django.shortcuts import render
+from django.shortcuts import render, reverse
 from django.conf import settings
+from django.http import HttpResponsePermanentRedirect
 
 from browser.s3browser import S3Browser
 
 logger = logging.getLogger('gallery')
 
 
+class IndexViewRedirect(View):
+    def get(self, request):
+        element = settings.ROOT_FULL + request.GET.get('element', '')
+        return HttpResponsePermanentRedirect(reverse('index', args=(element,)))
+
+
 class IndexView(View):
     template_name = 'index.html'
 
-    def get(self, request):
-        prefix = settings.ROOT_FULL + request.GET.get('element', '')
+    def get(self, request, element=''):
+        logger.error(element)
+        prefix = settings.ROOT_FULL + element
 
         s3browser = S3Browser()
         file_list = s3browser.get_list(prefix=prefix)
