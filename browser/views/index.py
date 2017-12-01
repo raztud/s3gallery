@@ -11,8 +11,29 @@ logger = logging.getLogger('gallery')
 
 
 class IndexViewRedirect(View):
+    template_name = 'index.html'
+
     def get(self, request):
-        return HttpResponsePermanentRedirect(reverse('index', args=(request.GET.get('element', ''),)))
+
+        element = request.GET.get('element', '')
+        if element != '':
+            return HttpResponsePermanentRedirect(
+                reverse('index', args=(request.GET.get('element', ''),))
+            )
+
+        s3browser = S3Browser()
+        file_list = s3browser.get_list(prefix=settings.ROOT_FULL)
+
+        current_element = 'Photo Gallery '
+
+        elements = {
+            'elements': [current_element],
+            'current_element': current_element,
+            'folders': file_list['folders'],
+            'files': file_list['files']
+        }
+
+        return render(request, self.template_name, {'data': elements})
 
 
 class IndexView(View):
