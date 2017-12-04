@@ -172,7 +172,14 @@ TMP_FOLDER = '{}/temporary'.format(BASE_DIR)
 MEDIA_URL = TMP_FOLDER + '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
 
-RECAPTCHA_PUBLIC_KEY = '6Lcg9sQSAAAAACO2DlRTdy2SxI8u539LVRqYL9yF'
-RECAPTCHA_PRIVATE_KEY = '6Lcg9sQSAAAAAIErSSyfUrAa5cRSttXLpWSWEQjm'
-
 from .amazon import ACCESS_KEY, SECRET_KEY, REGION, BUCKET, ROOT, ROOT_FULL
+
+try:
+    from .settings_dev import *
+except ImportError as e:
+    pass
+
+try:
+    from .settings_prod import *
+except ImportError as e:
+    pass

@@ -4,6 +4,7 @@ env/
 __pycache__
 s3gallery/__pycache__
 s3gallery/amazon.py
+s3gallery/settings_*.py
 temporary/cache_*
 logs/
 uploads/
