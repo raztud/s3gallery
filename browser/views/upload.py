@@ -5,8 +5,8 @@ from django.shortcuts import render
 from django.views import View
 from browser.forms import UploadFileForm
 from django.core.files.storage import FileSystemStorage
-from django.core.mail import send_mail
-
+from django.core.mail import EmailMessage
+from django.conf import settings
 
 logger = logging.getLogger('gallery')
 
@@ -34,13 +34,11 @@ class UploadView(View):
         comment = request.POST.get('comment', '')
 
         try:
-            send_mail(
-                '[UT] Fisier nou uploadat',
-                'Fisier: {}; Comentariu: {}'.format(filename, comment),
-                'root@s3gallery.razvantudorica.net',
-                ['razvantudorica@gmail.com'],
-                fail_silently=False,
-            )
+            body = 'Fisier: {}; Comentariu: {}'.format(filename, comment)
+            email = EmailMessage(subject='[UT] Fisier nou',
+                                 body=body,
+                                 to=[settings.SITE_ADMIN])
+            email.send(fail_silently=False,)
         except:
             logger.error('Could not send email: {} {}'.format(filename, comment))
 

@@ -175,6 +175,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
 RECAPTCHA_PUBLIC_KEY = ''
 RECAPTCHA_PRIVATE_KEY = ''
 
+SITE_ADMIN = 'razvantudorica@gmail.com'
+
+EMAIL_USE_TLS = True
 EMAIL_HOST = 'localhost'
 EMAIL_HOST_PASSWORD = ''
 EMAIL_HOST_USER = ''
