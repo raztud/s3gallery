@@ -183,7 +183,7 @@ EMAIL_HOST_PASSWORD = ''
 EMAIL_HOST_USER = ''
 EMAIL_PORT = 1025
 
-from .amazon import ACCESS_KEY, SECRET_KEY, REGION, BUCKET, ROOT, ROOT_FULL
+from .amazon import ACCESS_KEY, SECRET_KEY, REGION, BUCKET, ROOT, ROOT_FULL, AWS_URL
 
 try:
     from .settings_dev import *
