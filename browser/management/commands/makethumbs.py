@@ -1,9 +1,10 @@
 import os
-import boto3
 import mimetypes
+import boto3
+from botocore.exceptions import ClientError
 from PIL import Image
-from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
+from django.core.management.base import BaseCommand
 from browser.s3browser import S3Browser, S3BrowserExceptionNotFound, \
     S3BrowserReadingError
 
@@ -15,8 +16,11 @@ class Command(BaseCommand):
     MAX_ENTRIES = 1000
 
     def add_arguments(self, parser):
-        parser.add_argument('--bucket', type=str, dest='bucket', default=settings.BUCKET, required=True, help='The AWS bucket')
-        parser.add_argument('--start', type=str, dest='start', required=True, help='The AWS start path. Eg: path/to/folder/')
+        parser.add_argument('--bucket', type=str, dest='bucket',
+                            default=settings.BUCKET, required=True,
+                            help='The AWS bucket')
+        parser.add_argument('--start', type=str, dest='start', required=True,
+                            help='The AWS start path. Eg: path/to/folder/')
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('Bucket: {}'.format(
@@ -31,7 +35,6 @@ class Command(BaseCommand):
                                    region_name=settings.REGION, )
 
         items = self.get_items(options['start'])
-        # print(items)
         if not len(items['files']):
             self.stdout.write(self.style.ERROR('No file found in path'))
             return
@@ -40,13 +43,20 @@ class Command(BaseCommand):
 
     def make_thumbs(self, files):
         for f in files:
+            if self.has_thumb(f):
+                self.stdout.write(self.style.WARNING(
+                    'Thumb for {} already exists'.format(f))
+                )
+                continue
+
+            if Command.is_thumb(f):
+                self.stdout.write(self.style.WARNING('{} is thumb'.format(f)))
+                continue
 
             temporary_file = self.download_tmp_file(f)
             thumb_path = self.make_thumb(temporary_file)
 
             if thumb_path is None:
-                # TODO
-                thumb_path = 'no_thumb.jpg'
                 continue
 
             thumb_name = thumb_path.split('/')[-1]
@@ -54,6 +64,27 @@ class Command(BaseCommand):
 
             self.upload_thumb(thumb_path, s3path)
             Command.clean_files([temporary_file, thumb_path])
+
+    @staticmethod
+    def is_thumb(s3filepath):
+        tokens = s3filepath.split('/')
+        filename = tokens[-1]
+        if filename[:6] == 'thumb_':
+            return True
+        return False
+
+    def has_thumb(self, s3filepath):
+        tokens = s3filepath.split('/')
+        filename = tokens[-1]
+        s3path = '/'.join(tokens[:-1])
+        s3thumbpath = s3path + '/thumb_' + filename
+        try:
+            self.client.head_object(Bucket=settings.BUCKET,
+                                    Key=s3thumbpath)
+        except ClientError:
+            return False
+
+        return True
 
     @staticmethod
     def clean_files(filelist):
