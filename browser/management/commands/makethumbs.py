@@ -68,12 +68,18 @@ class Command(BaseCommand):
 
         print('Upload {}'.format([thumb_path, self.bucket, s3path]))
 
-        mimetype = mimetypes.guess_type(thumb_path)[0]
-        self.client.upload_file(thumb_path, self.bucket, s3path, ExtraArgs={
+        extra = {
             'ACL': 'public-read',
-            'ContentType': mimetype,
-        })
+        }
 
+        mimetype = mimetypes.guess_type(thumb_path)[0]
+        if mimetype:
+            extra['ContentType'] = mimetype
+
+        self.client.upload_file(thumb_path,
+                                self.bucket,
+                                s3path,
+                                ExtraArgs=extra)
 
     def make_thumb(self, file_path):
         file_tokens = file_path.split('/')
