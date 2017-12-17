@@ -81,17 +81,19 @@ class S3Browser(object):
             raise S3BrowserExceptionNotFound
 
         fileid = head_response['ETag'].strip('"')
-        try:
-            body = self._get_from_file(fileid)
-            return body, head_response['ContentType']
-        except:
-            pass
+        if cache:
+            try:
+                body = self._get_from_file(fileid)
+                return body, head_response['ContentType']
+            except:
+                pass
 
         response = self.client.get_object(Bucket=settings.BUCKET, Key=filename, )
 
         try:
             body = response['Body'].read()
-            self._write_cache(body, fileid)
+            if cache:
+                self._write_cache(body, fileid)
             return body, response['ContentType']
         except Exception as ex:
             logger.error('Exception reading: {}: {}'.format(filename, ex))
