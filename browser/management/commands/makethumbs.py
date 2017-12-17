@@ -1,3 +1,4 @@
+import os
 import boto3
 import mimetypes
 from PIL import Image
@@ -52,21 +53,22 @@ class Command(BaseCommand):
             s3path = '/'.join(f.split('/')[:-1]) + '/' + thumb_name
 
             self.upload_thumb(thumb_path, s3path)
-            # clean_files(temporary_file, thumb_path)
+            Command.clean_files([temporary_file, thumb_path])
+
+    @staticmethod
+    def clean_files(filelist):
+        for filename in filelist:
+            try:
+                os.remove(filename)
+            except OSError:
+                pass
 
     def upload_thumb(self, thumb_path, s3path):
-        # with open(thumb_path, mode='rb') as file:
-        #     body = file.read()
-        # if body is None:
-        #     return
 
-        # response = self.client.put_object(
-        #     ACL='public-read',
-        #     Body=thumb_path,
-        #     Bucket=settings.BUCKET,
-        #     Key=filename, )
-
-        print('Upload {}'.format([thumb_path, self.bucket, s3path]))
+        self.stdout.write(
+            self.style.SUCCESS('Upload {} to {} {}'.format(thumb_path,
+                                                           self.bucket,
+                                                           s3path)))
 
         extra = {
             'ACL': 'public-read',
@@ -76,10 +78,18 @@ class Command(BaseCommand):
         if mimetype:
             extra['ContentType'] = mimetype
 
-        self.client.upload_file(thumb_path,
-                                self.bucket,
-                                s3path,
-                                ExtraArgs=extra)
+        try:
+            self.client.upload_file(thumb_path,
+                                    self.bucket,
+                                    s3path,
+                                    ExtraArgs=extra)
+        except:
+            self.stdout.write(
+                self.style.ERROR('Could not upload {} to {} {}'.
+                                 format(thumb_path,
+                                        self.bucket,
+                                        s3path))
+            )
 
     def make_thumb(self, file_path):
         file_tokens = file_path.split('/')
@@ -124,7 +134,6 @@ class Command(BaseCommand):
         return thumb_path
 
     def download_tmp_file(self, s3path):
-        print(s3path)
         s3browser = S3Browser()
         try:
             body, content_type = s3browser.get_raw_file(s3path, cache=False)
@@ -169,7 +178,6 @@ class Command(BaseCommand):
 
             kwargs['Prefix'] = start
 
-        print(kwargs)
         response = self.client.list_objects_v2(**kwargs)
 
         files = self.get_files(response)
