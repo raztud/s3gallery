@@ -67,6 +67,10 @@ class S3Browser(object):
             name = element['Key'].replace(prefix, '')
             if name == 'index.txt':
                 continue
+
+            if name[:6] == 'thumb_':
+                continue
+
             full_path = element['Key'].replace(settings.ROOT_FULL, '')
             elements.append({'full_path': full_path, 'name': name})
 
