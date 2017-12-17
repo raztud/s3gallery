@@ -2,3 +2,4 @@ Django==1.11.8
 django-recaptcha
 boto3==1.4.4
 gunicorn
+image

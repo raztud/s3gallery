@@ -1,5 +1,6 @@
 import boto3
-from uuid import uuid1
+import mimetypes
+from PIL import Image
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from browser.s3browser import S3Browser, S3BrowserExceptionNotFound, \
@@ -38,8 +39,83 @@ class Command(BaseCommand):
 
     def make_thumbs(self, files):
         for f in files:
-            temporary_file = self.download_tmp_file(f)
 
+            temporary_file = self.download_tmp_file(f)
+            thumb_path = self.make_thumb(temporary_file)
+
+            if thumb_path is None:
+                # TODO
+                thumb_path = 'no_thumb.jpg'
+                continue
+
+            thumb_name = thumb_path.split('/')[-1]
+            s3path = '/'.join(f.split('/')[:-1]) + '/' + thumb_name
+
+            self.upload_thumb(thumb_path, s3path)
+            # clean_files(temporary_file, thumb_path)
+
+    def upload_thumb(self, thumb_path, s3path):
+        # with open(thumb_path, mode='rb') as file:
+        #     body = file.read()
+        # if body is None:
+        #     return
+
+        # response = self.client.put_object(
+        #     ACL='public-read',
+        #     Body=thumb_path,
+        #     Bucket=settings.BUCKET,
+        #     Key=filename, )
+
+        print('Upload {}'.format([thumb_path, self.bucket, s3path]))
+
+        mimetype = mimetypes.guess_type(thumb_path)[0]
+        self.client.upload_file(thumb_path, self.bucket, s3path, ExtraArgs={
+            'ACL': 'public-read',
+            'ContentType': mimetype,
+        })
+
+
+    def make_thumb(self, file_path):
+        file_tokens = file_path.split('/')
+        filename = file_tokens[-1]
+        folder = '/'.join(file_tokens[:-1])
+        try:
+            im = Image.open(file_path)
+        except IOError:
+            self.stdout.write(self.style.ERROR(
+                'Could not open original image {}'.format(file_path)))
+            return None
+
+        width = im.size[0]
+        height = im.size[1]
+        aspect = width / float(height)
+
+        ideal_width = 200
+        ideal_height = 200
+
+        ideal_aspect = ideal_width / float(ideal_height)
+
+        if aspect > ideal_aspect:
+            # Then crop the left and right edges:
+            new_width = int(ideal_aspect * height)
+            offset = (width - new_width) / 2
+            resize = (offset, 0, width - offset, height)
+        else:
+            # ... crop the top and bottom:
+            new_height = int(width / ideal_aspect)
+            offset = (height - new_height) / 2
+            resize = (0, offset, width, height - offset)
+
+        try:
+            thumb = im.crop(resize).resize((ideal_width, ideal_height),
+                                           Image.ANTIALIAS)
+            thumb_path = folder + '/thumb_' + filename
+            thumb.save(thumb_path, "JPEG")
+        except IOError:
+            self.stdout.write(self.style.ERROR('Could not generate thumbnail'))
+            return None
+
+        return thumb_path
 
     def download_tmp_file(self, s3path):
         print(s3path)
@@ -48,7 +124,7 @@ class Command(BaseCommand):
             body, content_type = s3browser.get_raw_file(s3path, cache=False)
 
             fname = s3path.split('/')[-1]
-            filename = '/tmp/s3gall_{}_{}'.format(str(uuid1()), fname)
+            filename = '/tmp/{}'.format(fname)
             try:
                 f = open(filename, 'wb')
                 f.write(body)
@@ -68,8 +144,6 @@ class Command(BaseCommand):
             self.stdout.write(
                 self.style.ERROR('file not read from S3: {}'.format(s3path)))
             return None
-
-
 
     def get_items(self, start):
         kwargs = {
