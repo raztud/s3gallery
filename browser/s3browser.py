@@ -147,3 +147,16 @@ class S3Browser(object):
                 meta[row[0]] = row[1]
 
         return meta
+
+    def has_thumb(self, s3filepath):
+        tokens = s3filepath.split('/')
+        filename = tokens[-1]
+        s3path = '/'.join(tokens[:-1])
+        s3thumbpath = s3path + '/thumb_' + filename
+        try:
+            self.client.head_object(Bucket=settings.BUCKET,
+                                    Key=s3thumbpath)
+        except ClientError:
+            return False
+
+        return True

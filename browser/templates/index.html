@@ -3,11 +3,24 @@
 {% block content %}
 
 {% for element in data.folders %}
-<a href="/folder/{{ element.full_path }}">{{ element.name }}</a> <br />
+    <a href="/folder/{{ element.full_path }}">{{ element.name }}</a> <br />
 {% endfor %}
 
+<div class = "row">
+
 {% for element in data.files %}
-<a href="/file/{{ element.full_path }}">{{ element.name }}</a> <br />
+    <div class = "col-sm-6 col-md-3">
+      <a href="/file/{{ element.full_path }}" class = "thumbnail">
+          {% if element.has_thumb %}
+            <img src="{{ element.thumb }}" alt="{{ element.name }}" title="{{ element.name }}" />
+          {% else %}
+              {{ element.name }}
+          {% endif %}
+      </a>
+   </div>
+
 {% endfor %}
+
+</div>
 
 {% endblock %}

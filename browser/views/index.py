@@ -50,18 +50,18 @@ class IndexView(View):
 
         elements = current_element.split('/')
 
-        thumbs = {}
         for filedata in file_list['files']:
-            # print(filedata)
             filename_path = filedata['full_path']
             tokens = filename_path.split('/')
             filename = tokens[-1]
             path = '/'.join(tokens[:-1])
             thumb_name = '{}/thumb_{}'.format(path, filename)
-            filedata['thumb'] = settings.AWS_URL + thumb_name
-            # thumbs[filename] = 'https://s3-eu-west-1.amazonaws.com/utgal/g3/21645e22db975037a385a03701f2683c/fs/MuntiiLor/2006_mont_blanc/ep1_coumayeur/thumb_IMG_2466.JPG'
+            has_thumb = s3browser.has_thumb(
+                '{}{}'.format(settings.ROOT, filedata['full_path']))
 
-        print(file_list['files'])
+            filedata['thumb'] = ''
+            if has_thumb:
+                filedata['thumb'] = settings.AWS_URL + thumb_name
 
         elements = {
             'elements': elements,
