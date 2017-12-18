@@ -1,0 +1,1 @@
+from .thumb import Thumb
