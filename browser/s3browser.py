@@ -149,14 +149,20 @@ class S3Browser(object):
         return meta
 
     def has_thumb(self, s3filepath):
+        """
+        Returns the ETag if file exists or False
+        :param s3filepath: FULL path to s3 file.
+        :return:
+        :rtype: str|False
+        """
         tokens = s3filepath.split('/')
         filename = tokens[-1]
         s3path = '/'.join(tokens[:-1])
         s3thumbpath = s3path + '/thumb_' + filename
         try:
-            self.client.head_object(Bucket=settings.BUCKET,
-                                    Key=s3thumbpath)
+            head_response = self.client.head_object(Bucket=settings.BUCKET,
+                                                    Key=s3thumbpath)
         except ClientError:
             return False
 
-        return True
+        return head_response['ETag'].strip('"')
