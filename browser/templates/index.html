@@ -1,5 +1,9 @@
 {% extends "base.html" %}
-{% block h3title %}{{ data.current_element }} {%endblock %}
+    {% block h3title %}
+        {% for breadcrumb in data.breadcrumbs %}
+            / <a href="{{ breadcrumb.1 }}">{{ breadcrumb.0 }}</a>
+        {% endfor %}
+    {%endblock %}
 {% block content %}
 
 {% for element in data.folders %}
@@ -11,7 +15,7 @@
 {% for element in data.files %}
     <div class = "col-sm-6 col-md-3">
       <a href="/file/{{ element.full_path }}" class = "thumbnail">
-          {% if element.has_thumb %}
+          {% if element.thumb %}
             <img src="{{ element.thumb }}" alt="{{ element.name }}" title="{{ element.name }}" />
           {% else %}
               {{ element.name }}

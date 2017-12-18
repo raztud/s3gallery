@@ -48,7 +48,12 @@ class IndexView(View):
         current_element = element or 'Photo Gallery '
         current_element = current_element.replace('_', ' ')[:-1]
 
-        elements = current_element.split('/')
+        breadcrumbs = []
+        path = ''
+        for el in element.split('/'):
+            path += el + '/'
+            link = reverse('index', args=[path])
+            breadcrumbs.append((el, link))
 
         for filedata in file_list['files']:
             filename_path = filedata['full_path']
@@ -58,13 +63,14 @@ class IndexView(View):
             thumb_name = '{}/thumb_{}'.format(path, filename)
             has_thumb = s3browser.has_thumb(
                 '{}{}'.format(settings.ROOT, filedata['full_path']))
+            # has_thumb = True
 
             filedata['thumb'] = ''
             if has_thumb:
                 filedata['thumb'] = settings.AWS_URL + thumb_name
 
         elements = {
-            'elements': elements,
+            'breadcrumbs': breadcrumbs,
             'current_element': current_element,
             'folders': file_list['folders'],
             'files':  file_list['files']
