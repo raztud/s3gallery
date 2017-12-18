@@ -53,6 +53,9 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.WARNING('{} is thumb'.format(f)))
                 continue
 
+            if f[-1] == '/':
+                continue
+
             temporary_file = self.download_tmp_file(f)
             thumb_path = self.make_thumb(temporary_file)
 
