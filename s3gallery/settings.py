@@ -75,14 +75,6 @@ WSGI_APPLICATION = 's3gallery.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -185,7 +177,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
 RECAPTCHA_PUBLIC_KEY = ''
 RECAPTCHA_PRIVATE_KEY = ''
 
-SITE_ADMIN = 'razvantudorica@gmail.com'
+SITE_ADMIN = 'no-mail@mail.com'
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'localhost'
