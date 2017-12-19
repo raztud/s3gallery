@@ -122,7 +122,6 @@ class Command(BaseCommand):
                 continue
 
             originals3filename = s3filename
-            print('download {}'.format(originals3filename))
             temporary_file = self.download_tmp_file(s3filename)
             thumb_path = self.make_thumb(temporary_file)
 
