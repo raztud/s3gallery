@@ -1,10 +1,13 @@
 import os
+import hashlib
 import mimetypes
 import boto3
 from botocore.exceptions import ClientError
 from PIL import Image
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.db import IntegrityError
+from browser.models.thumb import Thumb
 from browser.s3browser import S3Browser, S3BrowserExceptionNotFound, \
     S3BrowserReadingError
 
@@ -21,14 +24,21 @@ class Command(BaseCommand):
                             help='The AWS bucket')
         parser.add_argument('--start', type=str, dest='start', required=True,
                             help='The AWS start path. Eg: path/to/folder/')
+        parser.add_argument('--save-db', type=str, dest='save_db',
+                            required=False, default=0,
+                            help='Update the DB with the thumb path')
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('Bucket: {}'.format(
             options['bucket'])))
         self.stdout.write(self.style.SUCCESS('Start path: {}'.format(
             options['start'])))
-        self.bucket = options['bucket']
 
+        self.save_db = Command.value_of_save_to_db(options['save_db'])
+        self.stdout.write(self.style.SUCCESS('Save to DB: {}'.format(
+            self.save_db)))
+
+        self.bucket = options['bucket']
         self.client = boto3.client('s3',
                                    aws_access_key_id=settings.ACCESS_KEY,
                                    aws_secret_access_key=settings.SECRET_KEY,
@@ -42,6 +52,13 @@ class Command(BaseCommand):
                 continue
 
             self.make_thumbs(items['files'])
+
+    @staticmethod
+    def value_of_save_to_db(val):
+        if str(val).lower() in ['true', '1']:
+            return True
+
+        return False
 
     def get_folders(self, start, folders=None):
         if folders is None:
@@ -84,31 +101,70 @@ class Command(BaseCommand):
         return folders
 
     def make_thumbs(self, files):
-        for f in files:
-            if self.has_thumb(f):
-                self.stdout.write(self.style.WARNING(
-                    'Thumb for {} already exists'.format(f))
+        for s3filename in files:
+            if Command.is_thumb(s3filename):
+                self.stdout.write(
+                    self.style.WARNING('{} is thumb'.format(s3filename))
                 )
                 continue
 
-            if Command.is_thumb(f):
-                self.stdout.write(self.style.WARNING('{} is thumb'.format(f)))
+            etag = self.has_thumb(s3filename)
+            if etag:
+                self.stdout.write(self.style.WARNING(
+                    'Thumb for {} already exists'.format(s3filename))
+                )
+                if self.save_db:
+                    Command.save_to_db(s3filename, etag)
+
                 continue
 
-            if f[-1] == '/':
+            if s3filename[-1] == '/':
                 continue
 
-            temporary_file = self.download_tmp_file(f)
+            originals3filename = s3filename
+            print('download {}'.format(originals3filename))
+            temporary_file = self.download_tmp_file(s3filename)
             thumb_path = self.make_thumb(temporary_file)
 
             if thumb_path is None:
                 continue
 
             thumb_name = thumb_path.split('/')[-1]
-            s3path = '/'.join(f.split('/')[:-1]) + '/' + thumb_name
+            s3path = '/'.join(s3filename.split('/')[:-1]) + '/' + thumb_name
 
             self.upload_thumb(thumb_path, s3path)
+
+            if self.save_db:
+                filehash = hashlib.md5()
+                filehash.update(open(temporary_file, 'rb').read())
+                etag = filehash.hexdigest()
+                s3filename = s3path.replace(settings.ROOT, '')
+                print('save to db: {} {}'.format(originals3filename, etag))
+                Command.save_to_db(originals3filename, etag)
+
             Command.clean_files([temporary_file, thumb_path])
+
+    @staticmethod
+    def save_to_db(s3filename, etag):
+        thumb_name = Command.get_thumb_name(s3filename).replace(
+            settings.ROOT, ''
+        )
+        s3url = s3filename.replace(settings.ROOT, '')
+        try:
+            t = Thumb()
+            t.thumb_path = thumb_name
+            t.md5sum = etag
+            t.s3url = s3url
+            t.save()
+        except IntegrityError:
+            try:
+                t = Thumb.objects.get(s3url=s3url)
+                t.md5sum = etag
+                t.thumb_path = thumb_name
+                t.save()
+            except Thumb.DoesNotExist:
+                # should not be the case
+                pass
 
     @staticmethod
     def is_thumb(s3filepath):
@@ -118,18 +174,23 @@ class Command(BaseCommand):
             return True
         return False
 
-    def has_thumb(self, s3filepath):
+    @staticmethod
+    def get_thumb_name(s3filepath):
         tokens = s3filepath.split('/')
         filename = tokens[-1]
         s3path = '/'.join(tokens[:-1])
-        s3thumbpath = s3path + '/thumb_' + filename
+        return s3path + '/thumb_' + filename
+
+    def has_thumb(self, s3filepath):
         try:
-            self.client.head_object(Bucket=settings.BUCKET,
-                                    Key=s3thumbpath)
+            head_response = self.client.head_object(
+                Bucket=settings.BUCKET,
+                Key=Command.get_thumb_name(s3filepath)
+            )
         except ClientError:
             return False
 
-        return True
+        return head_response['ETag'].strip('"')
 
     @staticmethod
     def clean_files(filelist):
