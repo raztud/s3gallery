@@ -47,7 +47,7 @@ class Command(BaseCommand):
 
     def get_items(self, start, folders=None):
         if folders is None:
-            folders = []
+            folders = [start,]
 
         kwargs = {
             'Bucket': self.bucket,

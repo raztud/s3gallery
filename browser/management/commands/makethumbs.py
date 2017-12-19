@@ -34,12 +34,54 @@ class Command(BaseCommand):
                                    aws_secret_access_key=settings.SECRET_KEY,
                                    region_name=settings.REGION, )
 
-        items = self.get_items(options['start'])
-        if not len(items['files']):
-            self.stdout.write(self.style.ERROR('No file found in path'))
-            return
+        folders = self.get_folders(options['start'])
+        for folder in folders:
+            items = self.get_items(folder)
+            if not len(items['files']):
+                self.stdout.write(self.style.WARNING('No file found in {}'.format(folder)))
+                continue
 
-        self.make_thumbs(items['files'])
+            self.make_thumbs(items['files'])
+
+    def get_folders(self, start, folders=None):
+        if folders is None:
+            folders = [start,]
+
+        kwargs = {
+            'Bucket': self.bucket,
+            'MaxKeys': Command.MAX_ENTRIES,
+            'Delimiter': '/',
+            'Prefix': start,
+        }
+
+        if start != '/':
+            # the folder must end in / and should not start with /
+            # eg: path/to/folder/
+            if start[0] == '/':
+                start = start[1:]
+            if start[-1] != '/':
+                start += '/'
+
+            kwargs['Prefix'] = start
+
+        response = self.client.list_objects_v2(**kwargs)
+
+        prefixes = Command.extract_prefixes(response)
+
+        if len(prefixes):
+            folders += prefixes
+            for d in prefixes:
+                self.get_folders(d, folders=folders)
+
+        return folders
+
+    @staticmethod
+    def extract_prefixes(response):
+        folders = []
+        for data in response.get('CommonPrefixes', []):
+            folders.append(data['Prefix'])
+
+        return folders
 
     def make_thumbs(self, files):
         for f in files:
