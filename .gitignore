@@ -1,4 +1,5 @@
 *.pyc
+gunicorn_start
 logs/
 env/
 __pycache__
