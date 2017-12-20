@@ -15,3 +15,5 @@ Set the necessary rights on `temporary` folder.
 pip install -r requirements.txt
 python manage.py runserver
 ```
+
+[Check the wiki](https://github.com/raztud/s3gallery/wiki) for more info.
