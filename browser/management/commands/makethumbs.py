@@ -144,18 +144,16 @@ class Command(BaseCommand):
                         current,
                         total,
                         thumb_path,
-                        self.bucket,
                         s3path)
                     )
                 )
             except:
                 self.stdout.write(
                     self.style.ERROR(
-                        '[{}/{}] Could not upload {} to {} {}'.format(
+                        '[{}/{}] Could not upload {} to {}'.format(
                             current,
                             total,
                             thumb_path,
-                            self.bucket,
                             s3path)
                     )
                 )
