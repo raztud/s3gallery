@@ -101,6 +101,8 @@ class Command(BaseCommand):
         return folders
 
     def make_thumbs(self, files):
+        total = len(files)
+        current = 1
         for s3filename in files:
             if Command.is_thumb(s3filename):
                 self.stdout.write(
@@ -134,7 +136,31 @@ class Command(BaseCommand):
             thumb_name = thumb_path.split('/')[-1]
             s3path = '/'.join(s3filename.split('/')[:-1]) + '/' + thumb_name
 
-            self.upload_thumb(thumb_path, s3path)
+
+            try:
+                self.upload_thumb(thumb_path, s3path)
+                self.stdout.write(
+                    self.style.SUCCESS('[{}/{}] Uploaded {} to {}'.format(
+                        current,
+                        total,
+                        thumb_path,
+                        self.bucket,
+                        s3path)
+                    )
+                )
+            except:
+                self.stdout.write(
+                    self.style.ERROR(
+                        '[{}/{}] Could not upload {} to {} {}'.format(
+                            current,
+                            total,
+                            thumb_path,
+                            self.bucket,
+                            s3path)
+                    )
+                )
+
+            current += 1
 
             if self.save_db:
                 filehash = hashlib.md5()
@@ -202,12 +228,6 @@ class Command(BaseCommand):
                 pass
 
     def upload_thumb(self, thumb_path, s3path):
-
-        self.stdout.write(
-            self.style.SUCCESS('Upload {} to {} {}'.format(thumb_path,
-                                                           self.bucket,
-                                                           s3path)))
-
         extra = {
             'ACL': 'public-read',
         }
@@ -216,18 +236,10 @@ class Command(BaseCommand):
         if mimetype:
             extra['ContentType'] = mimetype
 
-        try:
-            self.client.upload_file(thumb_path,
-                                    self.bucket,
-                                    s3path,
-                                    ExtraArgs=extra)
-        except:
-            self.stdout.write(
-                self.style.ERROR('Could not upload {} to {} {}'.
-                                 format(thumb_path,
-                                        self.bucket,
-                                        s3path))
-            )
+        self.client.upload_file(thumb_path,
+                                self.bucket,
+                                s3path,
+                                ExtraArgs=extra)
 
     def make_thumb(self, file_path):
         file_tokens = file_path.split('/')
