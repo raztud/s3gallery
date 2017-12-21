@@ -121,6 +121,9 @@ class Command(BaseCommand):
             if s3filename[-1] == '/':
                 continue
 
+            if s3filename[:3].tolower() not in ('jpg', 'png', 'peg'):
+                continue
+
             originals3filename = s3filename
             temporary_file = self.download_tmp_file(s3filename)
             thumb_path = self.make_thumb(temporary_file)
@@ -138,7 +141,6 @@ class Command(BaseCommand):
                 filehash.update(open(temporary_file, 'rb').read())
                 etag = filehash.hexdigest()
                 s3filename = s3path.replace(settings.ROOT, '')
-                print('save to db: {} {}'.format(originals3filename, etag))
                 Command.save_to_db(originals3filename, etag)
 
             Command.clean_files([temporary_file, thumb_path])
