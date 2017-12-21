@@ -121,7 +121,7 @@ class Command(BaseCommand):
             if s3filename[-1] == '/':
                 continue
 
-            if s3filename[:3].tolower() not in ('jpg', 'png', 'peg'):
+            if s3filename[:3].lower() not in ('jpg', 'png', 'peg'):
                 continue
 
             originals3filename = s3filename
