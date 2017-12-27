@@ -1,5 +1,5 @@
 import logging
-import csv
+import ujson
 import boto3
 from django.conf import settings
 from botocore.exceptions import ClientError
@@ -42,21 +42,16 @@ class S3Browser(object):
     def _get_folders(self, response, prefix):
         content = response.get('CommonPrefixes', [])
 
-        body = self._get_index_content(prefix)
-        meta = S3Browser._parse_index(body)
+        meta = self._get_index_content(prefix)
 
         elements = []
         for element in content:
             meta_name = element['Prefix'].replace(prefix, '')[:-1]
-            name = meta.get(meta_name) or \
-                   element['Prefix'].replace(prefix, '')
-            elements.append(
-                {
-                    'full_path': element['Prefix'].replace(settings.ROOT_FULL,
-                                                           ''),
-                    'name': name
-                }
-            )
+            name = meta.get(meta_name) or element['Prefix'].replace(prefix, '')
+            elements.append({
+                'full_path': element['Prefix'].replace(settings.ROOT_FULL, ''),
+                'name': name
+            })
 
         return elements
 
@@ -65,10 +60,13 @@ class S3Browser(object):
         elements = []
         for element in content:
             name = element['Key'].replace(prefix, '')
-            if name == 'index.txt':
+            if name == 'index.json':
                 continue
 
             if name[:6] == 'thumb_':
+                continue
+
+            if element.get('Size', 0) == 0:
                 continue
 
             full_path = element['Key'].replace(settings.ROOT_FULL, '')
@@ -105,21 +103,22 @@ class S3Browser(object):
 
     def _get_index_content(self, prefix):
 
-        filename = prefix + 'index.txt'
+        filename = prefix + 'index.json'
         try:
             self.client.head_object(Bucket=settings.BUCKET, Key=filename)
         except ClientError:
             logger.info("{} not found".format(filename))
-            return ''
+            return {}
 
         try:
             response = self.client.get_object(Bucket=settings.BUCKET,
                                               Key=filename, )
             body = response['Body'].read()
-            return body.decode('utf-8')
+            jsonData = ujson.loads(body.decode('utf-8'))
+            return jsonData
         except:
-            logger.debug('index.txt could not be read')
-            return ''
+            logger.debug('index.json could not be read')
+            return {}
 
     @staticmethod
     def _write_cache(body, fileid):
@@ -137,16 +136,6 @@ class S3Browser(object):
         temp_folder = settings.TMP_FOLDER
         filename = '{}/cache_{}'.format(temp_folder, fileid)
         return open(filename, 'rb').read()
-
-    @staticmethod
-    def _parse_index(txt):
-        meta = {}
-        reader = csv.reader(txt.split('\n'), delimiter=',', quotechar='"')
-        for row in reader:
-            if len(row) >= 2:
-                meta[row[0]] = row[1]
-
-        return meta
 
     def has_thumb(self, s3filepath):
         """
