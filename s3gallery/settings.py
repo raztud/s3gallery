@@ -174,6 +174,7 @@ TMP_FOLDER = '{}/temporary'.format(BASE_DIR)
 
 MEDIA_URL = TMP_FOLDER + '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
+STATIC_ROOT = os.path.join(BASE_DIR, 'public_html')
 
 SITE_NAME = 'S3 Browser'
 COPYRIGHT = 's3browser'

@@ -13,15 +13,17 @@
 <div class = "row">
 
 {% for element in data.files %}
-    <div class = "col-sm-6 col-md-3">
-      <a href="/file/{{ element.full_path }}" class = "thumbnail">
-          {% if element.thumb %}
-            <img src="{{ element.thumb }}" alt="{{ element.name }}" title="{{ element.name }}" />
-          {% else %}
-              {{ element.name }}
-          {% endif %}
-      </a>
-   </div>
+
+    <div class="card">
+      {% if element.thumb %}
+          <a href="/file/{{ element.full_path }}"><img src="{{ element.thumb }}" alt="{{ element.name }}" title="{{ element.name }}" /></a>
+          <!-- <p class="card-text">Description</p> -->
+      {% else %}
+          <a href="/file/{{ element.full_path }}">{{ element.name }}</a>
+      {% endif %}
+
+    </div>
+
 
 {% endfor %}
 
