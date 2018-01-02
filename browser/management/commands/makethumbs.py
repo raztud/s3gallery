@@ -44,6 +44,7 @@ class Command(BaseCommand):
                                    aws_secret_access_key=settings.SECRET_KEY,
                                    region_name=settings.REGION, )
 
+        self.stdout.write(self.style.NOTICE('Building folders list...'))
         folders = self.get_folders(options['start'])
         for folder in folders:
             items = self.get_items(folder)

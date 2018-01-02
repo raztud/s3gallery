@@ -1,4 +1,5 @@
 import logging
+import time
 
 from django.views import View
 from django.shortcuts import render, reverse
@@ -31,7 +32,8 @@ class IndexViewRedirect(View):
             'elements': [current_element],
             'current_element': current_element,
             'folders': file_list['folders'],
-            'files': file_list['files']
+            'files': file_list['files'],
+            'year': time.strftime("%Y"),
         }
 
         return render(request, self.template_name, {'data': elements})

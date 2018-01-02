@@ -47,7 +47,9 @@ class S3Browser(object):
         elements = []
         for element in content:
             meta_name = element['Prefix'].replace(prefix, '')[:-1]
-            name = meta.get(meta_name) or element['Prefix'].replace(prefix, '')
+            name = meta.get(meta_name) or \
+                   element['Prefix'].replace(prefix, '')[:-1]
+
             elements.append({
                 'full_path': element['Prefix'].replace(settings.ROOT_FULL, ''),
                 'name': name

@@ -65,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'browser.context_processors.site_configs',
             ],
         },
     },
@@ -173,6 +174,9 @@ TMP_FOLDER = '{}/temporary'.format(BASE_DIR)
 
 MEDIA_URL = TMP_FOLDER + '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
+
+SITE_NAME = 'S3 Browser'
+COPYRIGHT = 's3browser'
 
 RECAPTCHA_PUBLIC_KEY = ''
 RECAPTCHA_PRIVATE_KEY = ''

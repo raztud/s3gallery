@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="Simple S3 Browser for photos">
-    <meta name="author" content="Razvan Tudorica">
+    <meta name="author" content="Răzvan Tudorică">
 
     <title>S3 browser</title>
 
@@ -27,26 +27,26 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <!-- Piwik -->
-<script type="text/javascript">
-  var _paq = _paq || [];
-  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-    var u="//analytics.razvantudorica.net/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', '6']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-<!-- End Piwik Code --> 
+    <script type="text/javascript">
+      var _paq = _paq || [];
+      /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u="//analytics.razvantudorica.net/";
+        _paq.push(['setTrackerUrl', u+'piwik.php']);
+        _paq.push(['setSiteId', '7']);
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+      })();
+    </script>
+    <!-- End Piwik Code -->
   </head>
 
   <body>
     <div class="container">
         <div class="page-header">
-            <h1><a href="/">Galerie Ursul Trubadur</a></h1>
+            <h1><a href="/">{{ site_name }}</a></h1>
             <p class="lead">{% block h3title %}{% endblock %}</p>
           </div>
 
@@ -54,11 +54,9 @@
 
           <footer>
             <p>&nbsp;</p>
-            <p>&copy; UrsulTrubadur.org {{year}}</p>
+            <p>&copy; {{ copyright }} {{year}} / Check the code on <a href="https://github.com/raztud/s3gallery" target="_blank">Github</a></p>
           </footer>
     </div> <!-- /container -->
-
-
 
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="{% static 'browser/js/ie10-viewport-bug-workaround.js' %}"></script>
