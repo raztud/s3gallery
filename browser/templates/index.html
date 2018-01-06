@@ -1,14 +1,22 @@
 {% extends "base.html" %}
+{% load static %}
     {% block h3title %}
         {% for breadcrumb in data.breadcrumbs %}
             / <a href="{{ breadcrumb.1 }}">{{ breadcrumb.0 }}</a>
         {% endfor %}
     {%endblock %}
 {% block content %}
-
+<div class = "row">
 {% for element in data.folders %}
-    <a href="/folder/{{ element.full_path }}">{{ element.name }}</a> <br />
+
+    <div class="card-folder">
+
+      <a href="/folder/{{ element.full_path }}"><img class="folder-image" src="{% static 'browser/images/thumb_folder.png' %}" alt="{{ element.name }}" title="{{ element.name }}" /></a>
+      <p class="card-text text-center">{{ element.name|truncatechars:"15" }}</p>
+
+    </div>
 {% endfor %}
+</div>
 
 <div class = "row">
 

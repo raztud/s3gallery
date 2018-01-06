@@ -2,7 +2,8 @@ from django.db import models
 
 
 class Thumb(models.Model):
-    s3url = models.CharField(db_index=True, max_length=500, blank=False, null=False)
+    s3url = models.CharField(db_index=True, max_length=500, blank=False,
+                             null=False, unique=True)
     md5sum = models.CharField(db_index=True,
                               max_length=255,
                               blank=False,

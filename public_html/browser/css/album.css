@@ -53,3 +53,32 @@ footer {
 footer p {
   margin-bottom: .25rem;
 }
+
+.card-folder {
+    float: left;
+    padding: .75rem;
+    margin-bottom: 2rem;
+    border: 0;
+}
+
+.card-folder > img {
+  margin-bottom: .75rem;
+}
+
+.card-folder:hover .folder-image {
+  opacity: 0.3;
+}
+
+.card-folder:hover .middle {
+  opacity: 1;
+}
+
+
+.folder-image {
+  opacity: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: .5s ease;
+  backface-visibility: hidden;
+}
