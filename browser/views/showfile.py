@@ -14,7 +14,7 @@ logger = logging.getLogger('gallery')
 
 
 class ShowFileView(View):
-    def get(self, request, element=None):
+    def get(self, request, raw=False, element=None):
         if element is None:
             element = request.GET.get('element')
 
@@ -25,9 +25,15 @@ class ShowFileView(View):
         s3browser = S3Browser()
         try:
             body, content_type = s3browser.get_raw_file(filename, cache=True)
+            if raw:
+                return HttpResponse(
+                    body, content_type=content_type
+                )
+
             return render(request, 'show-file.html', {
                 'imgbody': base64.b64encode(body),
                 'year': time.strftime("%Y"),
+                'filename': element
             })
         except S3BrowserExceptionNotFound:
             return HttpResponseNotFound()

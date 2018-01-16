@@ -14,6 +14,7 @@
 
     <!-- Custom styles for this template -->
     <link href="{% static 'browser/css/album.css' %}" rel="stylesheet">
+    <link href="{% static 'browser/css/ekko-lightbox.css' %}" rel="stylesheet">
   </head>
 
   <body>
@@ -63,6 +64,9 @@
     <footer class="text-muted">
       <div class="container">
         <p class="float-right">
+          <div class="fb-like" data-href="{{ request.build_absolute_uri }}" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
+        </p>
+        <p class="float-right">
           <a href="#">Înapoi sus</a>
         </p>
         <!-- <p></p>
@@ -70,20 +74,37 @@
       </div>
     </footer>
 
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = 'https://connect.facebook.net/ro_RO/sdk.js#xfbml=1&version=v2.11';
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
 
     <script>window.jQuery || document.write('<script src="{% static 'browser/js/jquery-slim.min.js' %}"><\/script>')</script>
-    <script src="{% static 'browser/js/popper.min.js' %}"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js"></script>
+    <script src="{% static 'browser/js/popper.min.js' %}"></script>
+    <script src="{% static 'browser/js/ekko-lightbox.min.js' %}"></script>
     <script src="{% static 'browser/js/holder.min.js' %}"></script>
     <script>
       Holder.addTheme('thumb', {
         bg: '#55595c',
         fg: '#eceeef',
         text: 'Thumbnail'
+      });
+
+      $(document).on('click', '[data-toggle="lightbox"]', function(event) {
+          event.preventDefault();
+          $(this).ekkoLightbox({
+              alwaysShowClose: false,
+          });
       });
     </script>
    {% include 'piwik.html' %}

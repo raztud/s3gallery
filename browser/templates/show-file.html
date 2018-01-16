@@ -2,10 +2,12 @@
 {% block h3title %}{{ data.current_element }} {%endblock %}
 {% block content %}
 
-    <div>
-<img src="data:image/png;base64, {{ imgbody }}" alt="No image" />
 
-    </div>
-      <hr>
+<a href="{% url 'raw-file' element=filename %}">Vezi imaginea</a>
+
+<div class="row">
+    <img src="data:image/png;base64, {{ imgbody }}" alt="No image" />
+</div>
+<hr>
 
 {% endblock %}

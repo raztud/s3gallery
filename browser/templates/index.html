@@ -1,11 +1,20 @@
 {% extends "base.html" %}
 {% load static %}
-    {% block h3title %}
-        {% for breadcrumb in data.breadcrumbs %}
-            / <a href="{{ breadcrumb.1 }}">{{ breadcrumb.0 }}</a>
-        {% endfor %}
-    {%endblock %}
 {% block content %}
+
+<div class="row">
+<ol class="breadcrumb">
+    {% for breadcrumb in data.breadcrumbs %}
+        {% if not forloop.last %}
+            <li><a href="{{ breadcrumb.1 }}">{{ breadcrumb.0 }}</a></li>&nbsp/&nbsp
+        {% else %}
+            <li class="active">{{ breadcrumb.0 }}</li>
+        {% endif %}
+
+    {% endfor %}
+</ol>
+</div>
+
 <div class = "row">
 {% for element in data.folders %}
 
@@ -18,16 +27,24 @@
 {% endfor %}
 </div>
 
-<div class = "row">
+<div class="row">
 
 {% for element in data.files %}
 
     <div class="card">
       {% if element.thumb %}
-          <a href="/file/{{ element.full_path }}"><img src="{{ element.thumb }}" alt="{{ element.name }}" title="{{ element.name }}" /></a>
+          <a href="{% url 'raw-file' element=element.full_path %}"
+             data-toggle="lightbox"
+             data-gallery="s3-gallery"
+             data-title="{{ element.name }}"
+             data-footer="<a target='_blank' href='{% url 'file' element=element.full_path %}'>Pagina imaginii</a>"
+          >
+                <img src="{{ element.thumb }}" class="img-fluid" alt="{{ element.name }}" title="{{ element.name }}">
+          </a>
+
           <!-- <p class="card-text">Description</p> -->
       {% else %}
-          <a href="/file/{{ element.full_path }}">{{ element.name }}</a>
+          <a href="{% url 'raw-file' element=element.full_path %}">{{ element.name }}</a>
       {% endif %}
 
     </div>
