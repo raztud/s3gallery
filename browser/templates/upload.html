@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block h3title %}{{ data.current_element }} {%endblock %}
 {% block content %}
 
@@ -15,8 +16,8 @@
     {% endif %}
 
     <div class="alert alert-warning">
-        <p>Puteți trimite arhive din turele Ursul Trubadur. Vă rugăm să scrieți un mesaj descriptiv despre ce reprezintă arhiva atașată: locul, data, numele vostru, email.</p>
-        <p>Dacă vreți să trimiteți un link către o arhivă (dropbox, wetransfer, etc) scrieți linkul în comentariu și uploadați un fișier oarecare.</p>
+        <p>{% trans 'You can send archives with pictures.' %}</p>
+        <p>{% trans 'You can send also a link to an external storage (dropbox, google drive) in the comment section, but you need to upload a dummy file.' %}</p>
     </div>
 
     {% if form.subject.errors %}
@@ -33,7 +34,7 @@
         {{ form.non_field_errors }}
 
         <div class="form-group row">
-            <label for="{{ form.comment.id_for_label }}" class="col-sm-2 col-form-label">Comentariu</label>
+            <label for="{{ form.comment.id_for_label }}" class="col-sm-2 col-form-label">{% trans 'Comment' %}</label>
             <div class="col-sm-10">
                 {{ form.comment }}
             </div>
@@ -53,7 +54,7 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary">Trimite</button>
+        <button type="submit" class="btn btn-primary">{% trans 'Send' %}</button>
     </form>
 
 {% endblock %}

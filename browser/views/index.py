@@ -1,3 +1,4 @@
+# coding: utf-8
 import logging
 import time
 
@@ -6,13 +7,37 @@ from django.shortcuts import render, reverse
 from django.conf import settings
 from django.http import HttpResponsePermanentRedirect
 
-from browser.models.thumb import Thumb
+from browser.models import Thumb, Folders
 from browser.s3browser import S3Browser
 
 logger = logging.getLogger('gallery')
 
 
+def update_folder_list(folders):
+    for entry in folders:
+        entry['preview_thumb'] = ''
+
+        try:
+            meta_info = Folders.objects.get(s3url=entry['full_path'])
+            preview_image = meta_info.preview_thumb
+        except Folders.DoesNotExist:
+            preview_image = None
+
+        if not preview_image:
+            continue
+
+        try:
+            thumb = Thumb.objects.get(s3url=preview_image)
+            entry['preview_thumb'] = '{}{}'.format(settings.AWS_URL,
+                                                   thumb.thumb_path)
+        except Thumb.DoesNotExist:
+            pass
+
+
 class IndexViewRedirect(View):
+    """
+    TODO: Merge with IndexView
+    """
     template_name = 'index.html'
 
     def get(self, request):
@@ -27,14 +52,29 @@ class IndexViewRedirect(View):
         file_list = s3browser.get_list(prefix=settings.ROOT_FULL)
 
         current_element = 'Photo Gallery '
+        description = name = ''
+        try:
+            meta_info = Folders.objects.get(s3url=element)
+            description = meta_info.description
+            name = meta_info.name
+        except Folders.DoesNotExist:
+            pass
+
+        update_folder_list(file_list['folders'])
 
         elements = {
+            'meta_description': description,
+            'meta_folder_name': name,
+            'real_folder_name': 'Home',
+            'real_path': '/',
             'elements': [current_element],
             'current_element': current_element,
             'folders': file_list['folders'],
             'files': file_list['files'],
             'year': time.strftime("%Y"),
         }
+
+        # logging.debug("elements1 = {}".format(elements))
 
         return render(request, self.template_name, {'data': elements})
 
@@ -54,6 +94,8 @@ class IndexView(View):
         breadcrumbs = []
         path = ''
         for el in element.split('/'):
+            if not el:
+                continue
             path += el + '/'
             link = reverse('index', args=[path])
             breadcrumbs.append((el, link))
@@ -82,11 +124,27 @@ class IndexView(View):
             filedata['thumb'] = '{}{}'.format(settings.AWS_URL,
                                               thumb_path)
 
+        description = name = ''
+        try:
+            meta_info = Folders.objects.get(s3url=element)
+            description = meta_info.description
+            name = meta_info.name
+        except Folders.DoesNotExist:
+            pass
+
+        update_folder_list(file_list['folders'])
+
         elements = {
+            'meta_description': description,
+            'meta_folder_name': name,
+            'real_folder_name': breadcrumbs[-1][0],
+            'real_path': breadcrumbs[-1][1],
             'breadcrumbs': breadcrumbs,
             'current_element': current_element,
             'folders': file_list['folders'],
-            'files':  file_list['files']
+            'files':  file_list['files'],
+            'year': time.strftime('%Y'),
         }
 
         return render(request, self.template_name, {'data': elements})
+

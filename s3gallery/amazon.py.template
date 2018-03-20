@@ -5,3 +5,28 @@ BUCKET = ""
 ROOT = "the/path/in/s3/where/to/start/"
 ROOT_FULL = ROOT + ""
 AWS_URL = 'https://s3-eu-west-1.amazonaws.com/{}/{}'.format(BUCKET, ROOT)
+
+ALLOWED_HOSTS = ['yourdomain.com', '127.0.0.1']
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 's3gallery',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'PORT': '3306',
+    }
+}
+
+SITE_ADMIN = 'yourmail@domain.com'
+
+# site config
+SITE_NAME = 'Photo gallery'
+SITE_DESCRIPTION = 'This is my photo gallery'
+META_TITLE = 'My photos'
+META_DESCRIPTION = 'Simple S3 Browser for photos'
+META_KEYWORDS = 'gallery, photo'
+COPYRIGHT = 's3browser'
+HOME_WEBSITE = 'http://mydomain.com/'
+FACEBOOK_URL = 'https://www.facebook.com/myuser/'

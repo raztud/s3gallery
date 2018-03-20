@@ -1,20 +1,26 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Simple S3 Browser for photos">
+    <meta name="description" content="{{ meta_description }}">
+    <meta name="keywords" content="{{ meta_keywords }}">
     <meta name="author" content="Răzvan Tudorică">
-
-    <title>S3 browser</title>
+    {% block meta %}
+        <meta name="description" content="{{ meta_description }}">
+        <title>{{ meta_title }}</title>
+    {% endblock %}
 
     <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 
     <!-- Custom styles for this template -->
     <link href="{% static 'browser/css/album.css' %}" rel="stylesheet">
     <link href="{% static 'browser/css/ekko-lightbox.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   </head>
 
   <body>
@@ -24,16 +30,16 @@
         <div class="container">
           <div class="row">
             <div class="col-sm-8 py-4">
-              <h4 class="text-white">Despre</h4>
-              <p class="text-muted">Aceasta este galeria foto Ursul Trubadur</p>
+              <h4 class="text-white">{% trans "About" %}</h4>
+              <p class="text-muted">{{ site_description }}</p>
             </div>
             <div class="col-sm-4 py-4">
-              <h4 class="text-white">Contact</h4>
+              <h4 class="text-white">{% trans "Contact" %}</h4>
               <ul class="list-unstyled">
-                  <li><a href="http://ursultrubadur.org/" class="text-white">UrsulTrubadur.org</a></li>
-                  <li><a href="{% url 'upload' %}" class="text-white">Upload Poze</a></li>
-                  <li><a href="https://www.facebook.com/ursultrubadur/" class="text-white">Urmărește-ne pe Facebook</a></li>
-                  <li><a href="https://github.com/raztud/s3gallery" class="text-white">S3Gallery on Github</a></li>
+                  <li><a href="{{ home_website }}" class="text-white">{% trans "Home" %}</a></li>
+                  <li><a href="{% url 'upload' %}" class="text-white">{% trans "Upload" %}</a></li>
+                  <li><a href="{{ facebook_url }}" class="text-white">{% trans "Follow us on Facebook" %}</a></li>
+                  <li><a href="https://github.com/raztud/s3gallery" class="text-white">{% trans "S3Gallery on Github" %}</a></li>
               </ul>
             </div>
           </div>
@@ -41,7 +47,7 @@
       </div>
       <div class="navbar navbar-dark bg-dark">
         <div class="container d-flex justify-content-between">
-          <a href="/" class="navbar-brand">Galerie foto</a>
+          <a href="/" class="navbar-brand">{{ site_name }}</a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -67,29 +73,25 @@
           <div class="fb-like" data-href="{{ request.build_absolute_uri }}" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
         </p>
         <p class="float-right">
-          <a href="#">Înapoi sus</a>
+          <a href="#">{% trans 'Up' %}</a>
         </p>
         <!-- <p></p>
         <p></p> -->
       </div>
     </footer>
 
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = 'https://connect.facebook.net/ro_RO/sdk.js#xfbml=1&version=v2.11';
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.11';
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
 
     <script>window.jQuery || document.write('<script src="{% static 'browser/js/jquery-slim.min.js' %}"><\/script>')</script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="{% static 'browser/js/popper.min.js' %}"></script>
     <script src="{% static 'browser/js/ekko-lightbox.min.js' %}"></script>
     <script src="{% static 'browser/js/holder.min.js' %}"></script>
@@ -108,5 +110,6 @@
       });
     </script>
    {% include 'piwik.html' %}
+   {% include 'translation_options.html' %}
   </body>
 </html>

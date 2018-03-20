@@ -1,3 +1,4 @@
+# coding: utf-8
 import logging
 import base64
 import time
@@ -31,7 +32,7 @@ class ShowFileView(View):
                 )
 
             return render(request, 'show-file.html', {
-                'imgbody': base64.b64encode(body),
+                'imgbody': base64.b64encode(body).decode('utf-8'),
                 'year': time.strftime("%Y"),
                 'filename': element
             })

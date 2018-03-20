@@ -1,9 +1,17 @@
 {% extends "base.html" %}
 {% load static %}
+{% load i18n %}
+
+{% block meta %}
+    <meta name="description" content="Photos {{ data.meta_folder_name }} {{ data.real_folder_name }}">
+    <title>S3 browser {{ data.meta_folder_name }} {{ data.real_folder_name }}</title>
+{% endblock %}
+
 {% block content %}
 
 <div class="row">
 <ol class="breadcrumb">
+    <li><a href="{% url 'home' %}">Home</a></li>&nbsp/&nbsp
     {% for breadcrumb in data.breadcrumbs %}
         {% if not forloop.last %}
             <li><a href="{{ breadcrumb.1 }}">{{ breadcrumb.0 }}</a></li>&nbsp/&nbsp
@@ -16,11 +24,28 @@
 </div>
 
 <div class = "row">
+    <div class="card bg-light text-dark">
+        {% if  data.meta_folder_name %}
+            <div class="card-header">{{ data.meta_folder_name }}</div>
+        {% endif %}
+        {% if  data.meta_description %}
+            <div class="card-body">{{ data.meta_description }} </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class = "row">
 {% for element in data.folders %}
 
     <div class="card-folder">
 
-      <a href="/folder/{{ element.full_path }}"><img class="folder-image" src="{% static 'browser/images/thumb_folder.png' %}" alt="{{ element.name }}" title="{{ element.name }}" /></a>
+      <a href='{% url 'index' element=element.full_path %}'>
+          {% if element.preview_thumb %}
+            <img class="folder-image" src="{{ element.preview_thumb }}" alt="{{ element.name }}" title="{{ element.name }}" />
+          {% else %}
+            <img class="folder-image" src="{% static 'browser/images/thumb_folder.png' %}" alt="{{ element.name }}" title="{{ element.name }}" />
+          {% endif %}
+      </a>
       <p class="card-text text-center">{{ element.name|truncatechars:"15" }}</p>
 
     </div>
@@ -33,15 +58,19 @@
 
     <div class="card">
       {% if element.thumb %}
-          <a href="{% url 'raw-file' element=element.full_path %}"
+          <a name="{{ element.name }}" href="{% url 'raw-file' element=element.full_path %}"
              data-toggle="lightbox"
              data-gallery="s3-gallery"
              data-title="{{ element.name }}"
-             data-footer="<a target='_blank' href='{% url 'file' element=element.full_path %}'>Pagina imaginii</a>"
+             data-footer="<a target='_blank' href='{% url 'file' element=element.full_path %}'>{% trans 'Image page' %}</a>"
           >
                 <img src="{{ element.thumb }}" class="img-fluid" alt="{{ element.name }}" title="{{ element.name }}">
           </a>
-
+            {% if user.is_superuser %}
+                <p class="card-text">
+                    <a href="#{{ element.name }}" id="thumb_{{ element.name }}" class="setThumb"><img src="{% static 'browser/images/plus16_16.png' %}" title="{% trans 'Make it thumb' %}" alt="{% trans 'Make it thumb' %}" /></a>
+                </p>
+            {% endif %}
           <!-- <p class="card-text">Description</p> -->
       {% else %}
           <a href="{% url 'raw-file' element=element.full_path %}">{{ element.name }}</a>
@@ -54,4 +83,34 @@
 
 </div>
 
+<script type="text/javascript">
+$( function() {
+    $('#chooseThumbDialog').dialog({
+        autoOpen:false,
+        resizable: true,
+        modal: true,
+        height: 300,
+        width: 'auto'
+    });
+    $(".setThumb").click(function(e) {
+        e.preventDefault();
+        showDialog($(this).attr('id'));
+    });
+
+});
+
+function showDialog(thumbImage){
+    var url = "{% url 'set-thumb' %}";
+
+    $.get( url, { path: "{{ data.real_path }}", thumb: thumbImage })
+        .done(function( data ) {
+            $("#chooseThumbDialog").html(data);
+        });
+
+    $("#chooseThumbDialog").dialog('open');
+}
+
+</script>
+
+<div id="chooseThumbDialog" title="{% trans 'Choose for which folder' %}"></div>
 {% endblock %}

@@ -77,8 +77,12 @@ footer p {
 .folder-image {
   opacity: 1;
   display: block;
-  width: 100%;
+  width: 100px;
   height: auto;
   transition: .5s ease;
   backface-visibility: hidden;
+}
+
+.ui-draggable, .ui-droppable {
+	background-position: top;
 }

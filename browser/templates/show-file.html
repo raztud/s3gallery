@@ -1,12 +1,13 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block h3title %}{{ data.current_element }} {%endblock %}
 {% block content %}
 
 
-<a href="{% url 'raw-file' element=filename %}">Vezi imaginea</a>
+<a href="{% url 'raw-file' element=filename %}">{% trans 'See image' %}</a>
 
 <div class="row">
-    <img src="data:image/png;base64, {{ imgbody }}" alt="No image" />
+    <img src="data:image/png;base64,{{ imgbody }}" alt="{% trans 'No image' %}" />
 </div>
 <hr>
 

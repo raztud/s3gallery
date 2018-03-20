@@ -11,10 +11,12 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+from django.utils.translation import ugettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# ugettext = lambda s: s
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -43,6 +45,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # 'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -66,6 +69,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'browser.context_processors.site_configs',
+                'django.template.context_processors.i18n',
             ],
         },
     },
@@ -111,7 +115,16 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ro'
+
+LANGUAGES = (
+    ('ro', _('Română')),
+    ('en', _('English')),
+)
+
+# LOCALE_PATHS = (
+#     os.path.join(BASE_DIR, 'locale'),
+# )
 
 TIME_ZONE = 'UTC'
 
@@ -178,9 +191,6 @@ MEDIA_URL = TMP_FOLDER + '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
 STATIC_ROOT = os.path.join(BASE_DIR, 'public_html')
 
-SITE_NAME = 'S3 Browser'
-COPYRIGHT = 's3browser'
-
 RECAPTCHA_PUBLIC_KEY = ''
 RECAPTCHA_PRIVATE_KEY = ''
 
@@ -191,6 +201,18 @@ EMAIL_HOST = 'localhost'
 EMAIL_HOST_PASSWORD = ''
 EMAIL_HOST_USER = ''
 EMAIL_PORT = 1025
+
+# exposed settings
+# all the following settings can be used in templates with lower case
+SITE_NAME = 'Photo gallery'
+SITE_DESCRIPTION = 'This is my photo gallery'
+META_TITLE = 'My photos'
+META_DESCRIPTION = 'Simple S3 Browser for photos'
+META_KEYWORDS = 'gallery, photo'
+COPYRIGHT = 's3browser'
+HOME_WEBSITE = 'http://mydomain.com/'
+FACEBOOK_URL = 'https://www.facebook.com/myuser/'
+# end exposed settings
 
 from .amazon import ACCESS_KEY, SECRET_KEY, REGION, BUCKET, ROOT, ROOT_FULL, AWS_URL
 

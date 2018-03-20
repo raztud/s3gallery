@@ -1,0 +1,41 @@
+<form action="{% url 'set-thumb' %}" method="POST" id="setThumbFrm">
+
+    {% for folderPath in paths %}
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="folderPath" value="{{ folderPath }}">
+      <label class="form-check-label" for="folderPath">
+        {{ folderPath }}
+      </label>
+    </div>
+    {% endfor %}
+
+    <input type="hidden" name="original_path" value="{{ original_path }}">
+    <input type="hidden" name="thumb" value="{{ thumb }}">
+    {% csrf_token %}
+    <button class="btn btn-primary" type="submit">Set thumb</button>
+</form>
+
+<script type="text/javascript">
+    $( function() {
+        $("#setThumbFrm").submit(function(e) {
+            e.preventDefault();
+            var datastring = $("#setThumbFrm").serialize();
+
+            $.ajax({
+                url: e.currentTarget.action,
+                type: 'post',
+                dataType: 'json',
+                data: datastring,
+                error: function (req, status, err) {
+                    console.log(req, status, err);
+                },
+                success: function(data, status, req) {
+                    console.log("Success: ", data);
+                    $("#chooseThumbDialog").dialog('close');
+                }
+
+            });
+        });
+        return false;
+    });
+</script>
